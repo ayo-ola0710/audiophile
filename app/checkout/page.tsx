@@ -11,6 +11,7 @@ import { useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import OrderConfirmationModal from "@/components/OrderConfirmationModal";
 import { validateCheckoutForm } from "../../utils/validation";
+import { sendOrderConfirmationEmail } from "../../utils/email";
 
 const Checkout = () => {
   const { cart, clearCart } = useCart();
@@ -103,6 +104,39 @@ const Checkout = () => {
         status: "pending",
         timestamp: Date.now(),
       });
+
+      // Send confirmation email
+      try {
+        await sendOrderConfirmationEmail({
+          orderId,
+          customer: {
+            name: formData.name,
+            email: formData.email,
+            phone: formData.phone,
+          },
+          shipping: {
+            address: formData.address,
+            zip: formData.zip,
+            city: formData.city,
+            country: formData.country,
+          },
+          items: cart.map((item) => ({
+            id: item.id,
+            name: item.name,
+            price: item.price,
+            quantity: item.quantity,
+          })),
+          totals: {
+            subtotal: total,
+            shipping: 50,
+            taxes: vat,
+            grandTotal: grandTotal,
+          },
+        });
+      } catch (emailError) {
+        console.error("Failed to send confirmation email:", emailError);
+        // Don't fail the order if email fails, just log it
+      }
 
       toast.success("Order placed successfully!");
       setShowModal(true);

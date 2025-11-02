@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Manrope } from "next/font/google";
 import "./globals.css";
 import { CartProvider } from "@/context/CartContext";
-import { ConvexClientProvider } from "@/api/ConvexClientProvider";
+import { ConvexClientProvider } from "@/app/api/ConvexClientProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
